@@ -14,8 +14,8 @@ jobs:
     name: Dependency audit
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
         with:
           python-version: "3.12"
           cache: pip
@@ -35,13 +35,13 @@ jobs:
           pip-audit -r requirements.txt --fix || true
           pip-audit -r requirements-dev.txt --fix || true
       - name: Upload audit reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: pip-audit-reports
           path: audit-*.json
           if-no-files-found: ignore
       - name: Open remediation PR
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v8
         with:
           commit-message: "chore(security): apply pip-audit dependency fixes"
           title: "chore(security): dependency remediation"
