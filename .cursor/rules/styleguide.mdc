@@ -1,0 +1,11 @@
+---
+description: Code style entry point for the signtraker client.
+globs:
+alwaysApply: true
+---
+Always check `./STYLE_GUIDE.md` before coding.
+
+If the repo also keeps `docs/STYLE_GUIDE.md`, treat the root guide as canonical
+for code conventions and the docs guide as the companion for prose structure.
+
+Use Google-style docstrings and thorough type hints on all public Python.

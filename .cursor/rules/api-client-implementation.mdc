@@ -1,0 +1,19 @@
+---
+description: Implementation rules for the signtraker Python API client project.
+globs:
+alwaysApply: true
+---
+Implement runtime code under `./signtraker/` and group endpoints by resource or
+service boundary (one module + one client class per group).
+
+Use Google-style docstrings and thorough type hints for generated Python.
+The auth header value is `Authorization: ST-API {api_key}`.
+
+Every endpoint or client change must update:
+- tests under `./tests/`
+- docs under `./docs/`
+- examples under `./examples/` when user-facing usage changes
+- the owning planning docs under `docs/planning/signtraker-api-client/`
+
+Do not mark an endpoint complete until code, tests, docs, and status docs all
+land.

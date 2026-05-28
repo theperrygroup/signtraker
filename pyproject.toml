@@ -1,0 +1,105 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "signtraker"
+version = "0.1.0"
+description = "Typed Python client for the SignTraker API"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [{ name = "SignTraker Python Client Contributors" }]
+keywords = ["signtraker", "signtracker", "api", "client", "real-estate", "signage"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dependencies = [
+    "requests>=2.31.0",
+    "pydantic>=2.5.0",
+    "typing-extensions>=4.8.0",
+]
+
+[project.optional-dependencies]
+dotenv = ["python-dotenv>=1.0.0"]
+dev = [
+    "python-dotenv>=1.0.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-mock>=3.12.0",
+    "responses>=0.24.0",
+    "black>=24.0.0",
+    "flake8>=6.1.0",
+    "mypy>=1.6.0",
+    "isort>=5.13.0",
+    "types-requests>=2.31.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/theperrygroup/signtraker"
+Documentation = "https://theperrygroup.github.io/signtraker/"
+Repository = "https://github.com/theperrygroup/signtraker"
+Changelog = "https://theperrygroup.github.io/signtraker/reference/changelog/"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["signtraker*"]
+exclude = ["tests*", "docs*", "examples*", "venv*"]
+
+[tool.setuptools.package-data]
+signtraker = ["py.typed"]
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["signtraker"]
+
+[tool.mypy]
+python_version = "3.10"
+plugins = ["pydantic.mypy"]
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_return_any = true
+no_implicit_optional = true
+strict_equality = true
+show_error_codes = true
+
+[tool.pydantic-mypy]
+init_typed = true
+warn_untyped_fields = true
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --cov=signtraker --cov-report=term-missing"
+testpaths = ["tests"]
+markers = [
+    "live: marks tests that call the real SignTraker API (deselect with -m 'not live')",
+]
+
+[tool.coverage.run]
+source = ["signtraker"]
+omit = ["*/tests/*", "*/venv/*"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if TYPE_CHECKING:",
+    "raise NotImplementedError",
+]

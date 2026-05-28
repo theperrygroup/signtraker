@@ -1,0 +1,4 @@
+# Runtime dependencies (mirror of pyproject [project].dependencies).
+requests>=2.31.0
+pydantic>=2.5.0
+typing-extensions>=4.8.0

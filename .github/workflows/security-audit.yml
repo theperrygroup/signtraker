@@ -1,0 +1,55 @@
+name: Security Audit
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install audit tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install pip-audit
+      - name: Audit requirements
+        id: audit
+        run: |
+          set +e
+          pip-audit -r requirements.txt -f json -o audit-runtime.json
+          pip-audit -r requirements-dev.txt -f json -o audit-dev.json
+          echo "done=true" >> "$GITHUB_OUTPUT"
+      - name: Attempt fixes
+        run: |
+          pip-audit -r requirements.txt --fix || true
+          pip-audit -r requirements-dev.txt --fix || true
+      - name: Upload audit reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: pip-audit-reports
+          path: audit-*.json
+          if-no-files-found: ignore
+      - name: Open remediation PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: "chore(security): apply pip-audit dependency fixes"
+          title: "chore(security): dependency remediation"
+          body: |
+            Automated dependency remediation from the weekly security audit.
+            Review the attached `pip-audit` reports before merging.
+          branch: security/dependency-remediation
+          labels: |
+            dependencies
+            security
+          delete-branch: true

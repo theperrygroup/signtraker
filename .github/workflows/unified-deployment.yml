@@ -1,0 +1,97 @@
+name: Unified Deployment
+
+# Manual orchestrator. A "release" run bumps the version in both source
+# locations, commits, and pushes a v* tag. The tag push then triggers
+# release.yml (PyPI + GitHub Release) and docs.yml (docs deploy). A "docs-only"
+# run rebuilds and redeploys the documentation without a release.
+
+on:
+  workflow_dispatch:
+    inputs:
+      deployment_type:
+        description: "What to deploy"
+        type: choice
+        options: [release, docs-only]
+        default: release
+      version:
+        description: "Semantic version for a release (e.g. 0.2.0)"
+        type: string
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Version bump and tag
+    if: ${{ inputs.deployment_type == 'release' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Validate version input
+        run: |
+          if [ -z "${{ inputs.version }}" ]; then
+            echo "version input is required for a release" && exit 1
+          fi
+          echo "${{ inputs.version }}" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([abrc.+-].*)?$'
+      - name: Ensure tag does not exist
+        run: |
+          if git rev-parse "v${{ inputs.version }}" >/dev/null 2>&1; then
+            echo "Tag v${{ inputs.version }} already exists" && exit 1
+          fi
+      - name: Install dev tooling
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[dev]"
+      - name: Bump version in both locations
+        run: |
+          python - <<'PY'
+          import re
+          version = "${{ inputs.version }}"
+          # pyproject.toml
+          text = open("pyproject.toml").read()
+          text = re.sub(r'(?m)^version = ".*"$', f'version = "{version}"', text, count=1)
+          open("pyproject.toml", "w").write(text)
+          # __init__.py
+          init = open("signtraker/__init__.py").read()
+          init = re.sub(r'(?m)^__version__ = ".*"$', f'__version__ = "{version}"', init, count=1)
+          open("signtraker/__init__.py", "w").write(init)
+          PY
+      - name: Run gates
+        run: |
+          black --check --line-length=88 .
+          isort --check-only --profile=black --line-length=88 .
+          mypy signtraker/ --strict
+          pytest -m "not live" --cov=signtraker --cov-report=term-missing
+      - name: Commit, tag, and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add pyproject.toml signtraker/__init__.py
+          git commit -m "chore(release): v${{ inputs.version }}"
+          git tag "v${{ inputs.version }}"
+          git push origin HEAD --tags
+
+  docs_only:
+    name: Docs-only deploy
+    if: ${{ inputs.deployment_type == 'docs-only' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install -r docs/requirements.txt
+      - name: Build and deploy docs
+        run: |
+          mkdocs build --strict
+          mkdocs gh-deploy --force
