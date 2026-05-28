@@ -103,16 +103,20 @@ Confirmed against the live API with a real key (read-only calls):
   `{ "value": [...] }` envelope). `list_agents(top=1)` returned `[]`. RESOLVED
   (gap 2).
 - 404 error body: `GET /api/agents/{bogus}` returns HTTP 404 with an empty body;
-  the client maps it to `NotFoundError` with a generated message. Gap 1 is
-  PARTIALLY resolved (404 body is empty; 400 body shape still unconfirmed).
+  the client maps it to `NotFoundError` with a generated message.
+- 400 error body: malformed OData (e.g. `$filter=(`) returns HTTP 400 with a
+  single PascalCase `Message` field, e.g.
+  `{"Message": "The query specified in the URI is not valid. ..."}`. The client
+  extracts it via the `Message` key. Gap 1 RESOLVED.
 - Note: the test account currently exposes no agent/office rows, so field-name
   parity with the models could not be confirmed from live data.
 
 ## Contradictions And Gaps
 
-1. (PARTIAL) Error body for 400 is still unconfirmed; 404 returns an empty body.
-   The client uses a recursive message extractor and attaches `status_code` +
-   `response_data`, defaulting the message when the body is empty.
+1. (RESOLVED) Error bodies confirmed live: 400 returns `{"Message": "..."}`;
+   404 returns an empty body. The client extracts the `Message` key and
+   defaults the message when the body is empty, attaching `status_code` +
+   `response_data` in both cases.
 2. (RESOLVED) List endpoints return bare JSON arrays. Verified live.
 3. `PATCH /api/agents/{id}` is described as a JSON Merge Patch. The required
    `Content-Type` is not stated; the client sends
