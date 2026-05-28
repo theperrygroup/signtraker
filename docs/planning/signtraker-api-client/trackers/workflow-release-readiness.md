@@ -24,5 +24,6 @@ Snapshot date: `2026-05-28`
 
 ## Release
 
-- PyPI publish via API token. Status: ready (publish is gated on explicit
-  go-ahead).
+- PyPI publish via GitHub Actions Trusted Publishing (OIDC), no token. Status:
+  DONE. `signtraker 0.1.0` published from `theperrygroup/signtraker` on
+  2026-05-28 and verified installable via `pip install signtraker`.

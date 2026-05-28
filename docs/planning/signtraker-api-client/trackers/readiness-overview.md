@@ -24,12 +24,13 @@ Snapshot date: `2026-05-28`
 | Tests & coverage | complete | Mocked suite per module; 100% coverage target enforced in config |
 | Docs & examples | complete | MkDocs site + examples checked in |
 | Workflows & release | complete | CI, deployment, security, docs, Dependabot checked in |
-| Live-API verification | planned | Gaps 1-3 in source-of-truth need a real tenant + key |
+| PyPI release | live | `signtraker 0.1.0` published via Trusted Publishing (OIDC) |
+| Live-API verification | in progress | Auth + list container confirmed; 400 body + merge-patch pending |
 
 ## Broad Blockers Before "Verified Complete"
 
-- Live-API run to confirm error envelope, list container shape, and merge-patch
-  content type.
+- Live-API run with write access to confirm the 400 error body and merge-patch
+  content type (auth and list container shape already confirmed).
 
 ## Focused Tracker Snapshot
 

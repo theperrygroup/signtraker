@@ -62,10 +62,11 @@ landed, what is blocked, and what still remains open.
 
 | Task | Status | Why it is still open |
 | --- | --- | --- |
-| Live-API verification | planned | Needs a real tenant + key |
-| PyPI publish of `0.1.0` | planned | Gated on explicit go-ahead |
+| 400 error-body / merge-patch live check | planned | Needs write access + sample data |
 
 ## 6. Current Conclusion
 
-- The client is complete and release-ready against the documented contract.
-- Remaining work is live verification and the gated publish.
+- `signtraker 0.1.0` is published to PyPI via GitHub Actions Trusted Publishing
+  (OIDC) from `theperrygroup/signtraker`, and verified installable.
+- The client is complete against the documented contract; the only remaining
+  follow-up is the live check of the 400 error body and merge-patch behavior.
